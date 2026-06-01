@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediManager - Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .transition-theme { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Animação suave de flutuação para os itens médicos */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-item { animation: float 4s ease-in-out infinite; }
+        .float-delayed { animation: float 4s ease-in-out infinite; animation-delay: 2s; }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen flex items-center justify-center relative overflow-hidden font-sans">
+
+    <!-- Toast de Erro -->
+    <div id="toastAlert" class="fixed top-5 right-5 z-[200] transform translate-x-[150%] transition-all duration-500 bg-white/90 backdrop-blur-md border border-red-200 p-5 rounded-2xl shadow-xl flex items-center space-x-4 max-w-md">
+        <div class="p-3 bg-red-50 text-red-600 rounded-xl text-2xl">
+            ⚠️
+        </div>
+        <div>
+            <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider">Notificação do Sistema</h4>
+            <p id="toastMessage" class="text-xs text-slate-500 mt-0.5 font-medium">Este e-mail já está cadastrado no sistema.</p>
+        </div>
+    </div>
+
+    <!-- Toast de Sucesso Customizado com Animação -->
+    <div id="toastSuccess" class="fixed top-5 right-5 z-[200] transform translate-x-[150%] transition-all duration-500 bg-white/90 backdrop-blur-md border border-emerald-200 p-5 rounded-2xl shadow-xl flex items-center space-x-4 max-w-md">
+        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-2xl animate-bounce">
+            ✅
+        </div>
+        <div>
+            <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider">Sucesso! 🎉</h4>
+            <p id="toastSuccessMessage" class="text-xs text-slate-500 mt-0.5 font-medium"></p>
+        </div>
+    </div>
+
+    <!-- Elementos de Brilho de Fundo -->
+    <div id="blurBg1" class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none transition-theme"></div>
+    <div id="blurBg2" class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px] pointer-events-none transition-theme"></div>
+
+    <!-- ========================================== -->
+    <!-- ITENS MÉDICOS DECORATIVOS FLUTUANTES -->
+    <!-- ========================================== -->
+    
+    <!-- Item 1: Estetoscópio & Batimento (Superior Esquerdo) -->
+    <div class="hidden lg:flex absolute top-12 left-16 bg-slate-900/80 backdrop-blur border border-slate-800 p-3 rounded-2xl shadow-xl items-center space-x-3 float-item z-0">
+        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl text-lg">🩺</div>
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Frequência Cardíaca</p>
+            <p class="text-xs font-black text-white">72 BPM <span class="text-emerald-400 animate-pulse">⚡</span></p>
+        </div>
+    </div>
+
+    <!-- Item 2: Status da UTI (Inferior Esquerdo) -->
+    <div class="hidden lg:flex absolute bottom-16 left-12 bg-slate-900/80 backdrop-blur border border-slate-800 p-3 rounded-2xl shadow-xl items-center space-x-3 float-delayed z-0">
+        <div class="p-2 bg-blue-500/10 text-blue-400 rounded-xl text-lg">🏥</div>
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Leitos UTI</p>
+            <p class="text-xs font-black text-white">84% Ocupados</p>
+        </div>
+    </div>
+
+    <!-- Item 3: Pílulas / Medicamentos (Superior Direito) -->
+    <div class="hidden lg:flex absolute top-16 right-20 bg-slate-900/80 backdrop-blur border border-slate-800 p-3 rounded-2xl shadow-xl items-center space-x-3 float-delayed z-0">
+        <div class="p-2 bg-teal-500/10 text-teal-400 rounded-xl text-lg">💊</div>
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Farmácia Central</p>
+            <p class="text-xs font-black text-white">Estoque Seguro</p>
+        </div>
+    </div>
+
+    <!-- Item 4: Alerta Ambulância (Inferior Direito) -->
+    <div class="hidden lg:flex absolute bottom-12 right-16 bg-slate-900/80 backdrop-blur border border-slate-800 p-3 rounded-2xl shadow-xl items-center space-x-3 float-item z-0">
+        <div class="p-2 bg-red-500/10 text-red-400 rounded-xl text-lg animate-pulse">🚨</div>
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pronto Socorro</p>
+            <p class="text-xs font-black text-white">Triagem Ativa</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+
+    <!-- Container do Card Principal -->
+    <div class="bg-slate-900/40 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-800 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 overflow-hidden relative z-10 transition-all duration-500 m-4">
+        
+        <div class="hidden md:block relative bg-slate-950">
+            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1200" alt="Clínica Médica Premium" class="absolute inset-0 w-full h-full object-cover opacity-45 object-center">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent flex flex-col justify-end p-10 text-white">
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 w-fit mb-4"># Portal Ambulatorial</span>
+                <h1 class="text-3xl font-black tracking-tight leading-tight">Conectando profissionais à saúde de ponta.</h1>
+                <p class="text-sm text-slate-400 mt-3 font-medium">Gerenciamento completo de prontuários, triagem de urgência e controle financeiro integrados em tempo real.</p>
+            </div>
+        </div>
+
+        <div class="p-10 md:p-12 flex flex-col justify-center bg-slate-900/80">
+            <div class="text-center md:text-left mb-8">
+                <div id="iconBox" class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-xl mb-4 shadow-lg shadow-emerald-600/20 transition-theme text-2xl">
+                    🏥
+                </div>
+                <h2 id="formTitle" class="text-3xl font-black text-white tracking-tight transition-theme">Portal MediManager</h2>
+                <p id="formDesc" class="text-sm font-medium text-slate-400 mt-1 transition-theme">Acesse sua área de gestão clínica <b>🩺</b></p>
+            </div>
+            
+            <form id="authForm" class="space-y-5" novalidate>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">📧 E-mail Corporativo</label>
+                    <input type="email" id="email" placeholder="medico@clinica.com" class="w-full mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-2xl outline-none transition-all placeholder-slate-500 text-base font-medium text-white focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <span id="erro-email" class="text-xs font-bold text-red-400 mt-1.5 hidden block">⚠️ Por favor, digite um e-mail válido.</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">🔒 Senha de Acesso</label>
+                    <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" class="w-full mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-2xl outline-none transition-all placeholder-slate-500 text-base font-medium text-white focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <span id="erro-password" class="text-xs font-bold text-red-400 mt-1.5 hidden block">⚠️ Por favor, digite sua senha de acesso.</span>
+                </div>
+                
+                <div id="confirmPasswordGroup" class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 space-y-1">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">🛡️ Confirmar Senha</label>
+                    <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="••••••••" class="w-full p-4 bg-slate-800/50 border border-slate-700 rounded-2xl outline-none transition-all placeholder-slate-500 text-base font-medium text-white focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <span id="erro-confirmPassword" class="text-xs font-bold text-red-400 mt-1.5 hidden block">⚠️ Por favor, confirme a sua senha.</span>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-emerald-600/10 text-sm uppercase tracking-wider mt-4">Entrar no Sistema 🚀</button>
+            </form>
+
+            <div class="mt-8 text-center md:text-left border-t border-slate-800 pt-5">
+                <button id="btnToggle" class="text-xs font-black text-emerald-400 hover:text-emerald-300 transition-theme uppercase tracking-wider">Novo por aqui? Crie sua credencial 🤝</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let isLogin = true;
+        const formTitle = document.getElementById('formTitle');
+        const formDesc = document.getElementById('formDesc');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const btnToggle = document.getElementById('btnToggle');
+        const iconBox = document.getElementById('iconBox');
+        const confirmGroup = document.getElementById('confirmPasswordGroup');
+        const blurBg1 = document.getElementById('blurBg1');
+        const blurBg2 = document.getElementById('blurBg2');
+
+        btnToggle.addEventListener('click', () => {
+            isLogin = !isLogin;
+            
+            ['email', 'password', 'confirmPassword'].forEach(id => {
+                const input = document.getElementById(id);
+                const erro = document.getElementById(`erro-${id}`);
+                if(input) input.classList.remove('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                if(erro) erro.classList.add('hidden');
+            });
+            
+            if (isLogin) {
+                formTitle.innerText = 'Portal MediManager';
+                formDesc.innerText = 'Acesse sua área de gestão clínica 🩺';
+                btnSubmit.innerText = 'Entrar no Sistema 🚀';
+                btnToggle.innerText = 'Novo por aqui? Crie sua credencial 🤝';
+                
+                iconBox.innerText = "🏥";
+                iconBox.className = "inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-xl mb-4 shadow-lg shadow-emerald-600/20 transition-theme text-2xl";
+                btnSubmit.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-emerald-600/10 text-sm uppercase tracking-wider mt-4";
+                btnToggle.className = "text-xs font-black text-emerald-400 hover:text-emerald-300 transition-theme uppercase tracking-wider";
+                
+                blurBg1.className = "absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none transition-theme";
+                blurBg2.className = "absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px] pointer-events-none transition-theme";
+
+                confirmGroup.classList.add('opacity-0', 'max-h-0');
+                confirmGroup.classList.remove('max-h-32', 'pt-2');
+            } else {
+                formTitle.innerText = 'Nova Credencial Médica';
+                formDesc.innerText = 'Cadastre-se para obter acesso ao painel ✨';
+                btnSubmit.innerText = 'Concluir Credenciamento 🛡️';
+                btnToggle.innerText = 'Já possui conta? Faça Login 🔑';
+                
+                iconBox.innerText = "🩺";
+                iconBox.className = "inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-xl mb-4 shadow-lg shadow-blue-600/20 transition-theme text-2xl";
+                btnSubmit.className = "w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/10 text-sm uppercase tracking-wider mt-4";
+                btnToggle.className = "text-xs font-black text-blue-400 hover:text-blue-300 transition-theme uppercase tracking-wider";
+                
+                blurBg1.className = "absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px] pointer-events-none transition-theme";
+                blurBg2.className = "absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none transition-theme";
+
+                confirmGroup.classList.remove('opacity-0', 'max-h-0');
+                confirmGroup.classList.add('max-h-32', 'pt-2');
+            }
+        });
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const inputEmail = document.getElementById('email');
+            const inputPassword = document.getElementById('password');
+            const inputConfirm = document.getElementById('confirmPassword');
+            
+            const erroEmail = document.getElementById('erro-email');
+            const erroPassword = document.getElementById('erro-password');
+            const erroConfirm = document.getElementById('erro-confirmPassword');
+            
+            let valido = true;
+
+            if (!inputEmail.value.trim() || !inputEmail.value.includes('@')) {
+                erroEmail.classList.remove('hidden');
+                inputEmail.classList.add('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                valido = false;
+            } else {
+                erroEmail.classList.add('hidden');
+                inputEmail.classList.remove('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+            }
+
+            if (!inputPassword.value.trim() || inputPassword.value.length < 6) {
+                erroPassword.innerText = inputPassword.value.length > 0 ? "⚠️ A senha deve ter no mínimo 6 caracteres." : "⚠️ Por favor, digite sua senha de acesso.";
+                erroPassword.classList.remove('hidden');
+                inputPassword.classList.add('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                valido = false;
+            } else {
+                erroPassword.classList.add('hidden');
+                inputPassword.classList.remove('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+            }
+
+            if (!isLogin) {
+                if (!inputConfirm.value.trim()) {
+                    erroConfirm.innerText = "⚠️ Por favor, confirme a sua senha.";
+                    erroConfirm.classList.remove('hidden');
+                    inputConfirm.classList.add('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                    valido = false;
+                } else if (inputPassword.value !== inputConfirm.value) {
+                    erroConfirm.innerText = "As senhas não coincidem! ❌";
+                    erroConfirm.classList.remove('hidden');
+                    inputConfirm.classList.add('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                    valido = false;
+                } else {
+                    erroConfirm.classList.add('hidden');
+                    inputConfirm.classList.remove('border-red-500', 'focus:ring-red-500/10', 'focus:border-red-500');
+                }
+            }
+
+            if (!valido) return;
+
+            if (isLogin) {
+                await login(inputEmail.value, inputPassword.value);
+            } else {
+                await signup(inputEmail.value, inputPassword.value);
+            }
+        });
+    </script>
+</body>
+</html>
