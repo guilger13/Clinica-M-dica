@@ -124,7 +124,7 @@ Este projeto foi desenvolvido para praticar:
 
 ## 👨‍💻 Autor
 
-Desenvolvido por Gabriel e Cauã e equipe para fins acadêmicos.
+Desenvolvido por Gabriel e Cauã para fins acadêmicos.
 
 ---
 
